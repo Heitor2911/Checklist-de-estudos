@@ -1,10 +1,19 @@
-import React, {useRef} from "react";
+import React, {Children, useEffect, useRef} from "react";
 
 import "./dialog.style.css";
+import { IconClose } from "../icons";
 
-export function Dialog() {
+export function Dialog({ isOpen, onClose, children }) {
   // Criamos uma referência para o elemento dialog
   const dialogRef = useRef(null);
+
+  useEffect(() => {
+      if (isOpen) {
+        openDialog()
+      } else {
+        closeDialog()
+      }
+  }, [isOpen])
 
   // Função para abrir a modal
   const openDialog = () => {
@@ -22,14 +31,20 @@ export function Dialog() {
 
   return (
     <React.Fragment>
-      <dialog ref={dialogRef}>
-        <input placeholder="Digite o item que deseja adicionar"></input>
-        
-        <br />
-        
-        <button type="submit" autoFocus onClick={closeDialog}>Salvar item</button>
+      <dialog ref={dialogRef} className="dialog">
+          <div className="btn-close-wrapper">
+              <button 
+                autofocus 
+                onClick={onClose}
+                className="btn-close"    
+              >
+                <IconClose/> 
+              </button>
+          </div>
+          <div className="body">
+            {children}
+          </div>
       </dialog>
-      <button onClick={openDialog}>Show the dialog</button>
     </React.Fragment>
   );
 }
