@@ -2,19 +2,33 @@ import { useEffect, useState } from "react";
 import TodoContext from "./TodoContex";
 
 export function TodoProvider({ children }) {
-
-  const TODOS = 'todos';
+  const TODOS = "todos";
 
   // Guarda os itens em string APENAS
-  const savedTodos = localStorage.getItem(TODOS)
+  const savedTodos = localStorage.getItem(TODOS);
 
   // Se já tiver itens os mostra se não mostra um array vazio, utiliza o parse para ler
   const [todos, setTodos] = useState(savedTodos ? JSON.parse(savedTodos) : []);
 
+  const [showDialog, setShowDialog] = useState(false);
+  const [selectedTodo, setSelectedTodo] = useState();
+
+  const openFormTodoDialog = (todo) => {
+    if (todo) {
+      setSelectedTodo(todo);
+    }
+    setShowDialog(true);
+  };
+  
+  const closeFormTodoDialog = () => {
+    setShowDialog(false);
+    setSelectedTodo(null);
+  };
+
   // Utiliza o stringify para salvar
   useEffect(() => {
-    localStorage.setItem(TODOS, JSON.stringify(todos))
-  }, [todos])
+    localStorage.setItem(TODOS, JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = (formData) => {
     const description = formData.get("description");
@@ -43,6 +57,20 @@ export function TodoProvider({ children }) {
       });
     });
   };
+  
+  const editTodo = (formData) => {
+    setTodos((prevState) => {
+      return prevState.map((t) => {
+        if (t.id == selectedTodo.id) {
+          return {
+            ...t,
+            description: formData.get("description"),
+          };
+        }
+        return t;
+      });
+    });
+  };
 
   const removeTodo = (todo) => {
     setTodos((prevState) => {
@@ -57,6 +85,11 @@ export function TodoProvider({ children }) {
         addTodo,
         toggleTodoCompleted,
         removeTodo,
+        showDialog,
+        openFormTodoDialog,
+        closeFormTodoDialog,
+        selectedTodo,
+        editTodo,
       }}
     >
       {children}
